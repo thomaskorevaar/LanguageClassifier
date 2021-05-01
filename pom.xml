@@ -4,9 +4,15 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>LanguageClassifier</groupId>
 	<artifactId>LanguageClassifier</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>1</version>
 	<name>Language Classifier</name>
 	<description>Language Classifier by Thomas Korevaar</description>
+	
+	<properties>
+	     <maven.compiler.source>1.6</maven.compiler.source>
+	     <maven.compiler.target>1.6</maven.compiler.target>
+	</properties>
+
 
 	<dependencies>
 		<dependency>
