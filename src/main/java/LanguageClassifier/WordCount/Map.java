@@ -10,7 +10,12 @@ import org.apache.hadoop.mapreduce.Mapper;
 
 public class Map extends Mapper<LongWritable, Text, Text, IntWritable> {
 	private final static IntWritable one = new IntWritable(1);
+	
 	private static final Pattern WORD_BOUNDARY = Pattern.compile("\\s*\\b\\s*");
+	private static final Pattern IS_LETTER_OR_SPACE_OR_PERIOD = Pattern.compile("([A-z\\.\\s])");
+	
+	private static final char SPACE = " ".toCharArray()[0];
+	private static final char PERIOD = ".".toCharArray()[0];
 	
 	private String CreateStringFromChar(char... args)
 	{
@@ -25,6 +30,13 @@ public class Map extends Mapper<LongWritable, Text, Text, IntWritable> {
 		}
 		
 		return result;
+	}
+	
+	//Helper function to check if character is a letter, space or period
+	private boolean isLetterSpaceOrPeriod(char c)
+	{
+		//Change char to string for use with regex
+		return IS_LETTER_OR_SPACE_OR_PERIOD.matcher(CreateStringFromChar(c)).matches();
 	}
 	
 	public void map(LongWritable offset, Text lineText, Context context) throws IOException, InterruptedException 
@@ -47,7 +59,23 @@ public class Map extends Mapper<LongWritable, Text, Text, IntWritable> {
 			//Loop over individual characters in word
 			for (char currentCharacter : word.toCharArray())
 			{
-				//Create writable string from characters
+				//Guard against irrelevant characters
+				if (!isLetterSpaceOrPeriod(currentCharacter))
+				{
+					continue;
+				}
+				
+				//Guard against sentence ending
+				if (previousCharacter == PERIOD)
+				{
+					if (currentCharacter == SPACE)
+					{
+						previousCharacter = 0;
+						continue;
+					}
+				}
+				
+				//Create writable string from character
 				String writable = CreateStringFromChar(previousCharacter, currentCharacter);
 				
 				//If writable is not empty and not a single character, write to output
