@@ -7,15 +7,19 @@ import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.lib.input.FileSplit;
 
 public class Map extends Mapper<LongWritable, Text, Text, IntWritable> {
-	private final static IntWritable one = new IntWritable(1);
+	private static final IntWritable one = new IntWritable(1);
 	
 	private static final Pattern WORD_BOUNDARY = Pattern.compile("\\s*\\b\\s*");
 	private static final Pattern IS_LETTER_OR_SPACE_OR_PERIOD = Pattern.compile("([A-z\\.\\s])");
 	
 	private static final char SPACE = " ".toCharArray()[0];
 	private static final char PERIOD = ".".toCharArray()[0];
+	
+	private LanguageHandler dutchLanguageHandler = new LanguageHandler("dutch", new Matrix());
+	private LanguageHandler englishLanguageHandler = new LanguageHandler("english", new Matrix());
 	
 	private String CreateStringFromChar(char... args)
 	{
@@ -41,6 +45,10 @@ public class Map extends Mapper<LongWritable, Text, Text, IntWritable> {
 	
 	public void map(LongWritable offset, Text lineText, Context context) throws IOException, InterruptedException 
 	{
+		String currentFile = ((FileSplit) context.getInputSplit()).getPath().getName();
+		
+		context.write(new Text("CURRENTLY DOING FILE: " + currentFile + "\n\n"), one);
+		
 		//Get current line as String 
 		String line = lineText.toString();
 		
