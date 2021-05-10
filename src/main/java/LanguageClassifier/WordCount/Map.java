@@ -100,8 +100,6 @@ public class Map extends Mapper<LongWritable, Text, Text, IntWritable> {
 						
 						verdict = verdictToString(total);
 						languageScore += total;
-						
-						context.write(new Text(verdict), one);
 					}
 				}
 			}
