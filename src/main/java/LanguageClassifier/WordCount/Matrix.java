@@ -3,44 +3,55 @@ package LanguageClassifier.WordCount;
 import java.util.ArrayList;
 
 public class Matrix {
-	private ArrayList<Pair<Character, ArrayList<Character>>> characterMatrix = new ArrayList<Pair<Character, ArrayList<Character>>>();
+	private ArrayList<WordPair> matrix = new ArrayList<WordPair>();
 
-	public ArrayList<String> getAllCombinations(char key)
+	public void addWords(String first, String last) 
 	{
-		ArrayList<String> result = new ArrayList<String>();
+		first = first.toLowerCase();
+		last = last.toLowerCase();
 		
-		getMatrix(key).forEach((item) -> {
-			result.add(key + "" + item);
-		});
-		
-		return result;
-	}
-	
-	public void addToMatrix(char key, char value)
-	{
-		ArrayList<Character> result = getMatrix(key);
-		
-		if (result == null)
+		for (WordPair wordPair : matrix)
 		{
-			Pair<Character, ArrayList<Character>> newPair = new Pair<Character, ArrayList<Character>>(key, new ArrayList<Character>(value));
-			characterMatrix.add(newPair);
-		}
-		else
-		{
-			result.add(value);
-		}
-	}
-	
-	private ArrayList<Character> getMatrix(char key)
-	{
-		for (Pair<Character, ArrayList<Character>> item: characterMatrix)
-		{
-			if (item.key == key)
+			if (wordPair.getFirst().equals(first))
 			{
-				return item.value;
+				if (wordPair.getLast().equals(last))
+				{
+					wordPair.increment();
+				}
 			}
 		}
 		
-		return null;
+		this.matrix.add(new WordPair(first, last));
+	}
+	
+	public boolean containsWordCombination(String first, String last)
+	{
+		first = first.toLowerCase();
+		last = last.toLowerCase();
+		
+		for (WordPair wordPair : matrix)
+		{
+			if (wordPair.getFirst().equals(first) && wordPair.getLast().equals(last))
+			{
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	
+	public boolean containsWord(String word)
+	{
+		word = word.toLowerCase();
+		
+		for (WordPair wordPair : matrix)
+		{
+			if (wordPair.getFirst().equals(word) || wordPair.getLast().equals(word))
+			{
+				return true;
+			}
+		}
+		
+		return false;
 	}
 }

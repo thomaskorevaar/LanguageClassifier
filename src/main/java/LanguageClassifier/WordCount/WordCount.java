@@ -12,8 +12,12 @@ import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 
 public class WordCount extends Configured implements Tool {
+	@SuppressWarnings("unused")
 	private static final Logger LOG = Logger.getLogger(WordCount.class);
 
+	public static LanguageHandler dutchLanguageHandler = new LanguageHandler("dutch", new Matrix());
+	public static LanguageHandler englishLanguageHandler = new LanguageHandler("english", new Matrix());
+	
 	public static void main(String[] args) throws Exception {
 		int res = ToolRunner.run(new WordCount(), args);
 		System.exit(res);
