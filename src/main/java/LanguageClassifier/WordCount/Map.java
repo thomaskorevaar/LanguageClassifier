@@ -1,8 +1,10 @@
 package LanguageClassifier.WordCount;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
+import LanguageClassifier.matrix.Matrix;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
@@ -11,102 +13,52 @@ import org.apache.hadoop.mapreduce.lib.input.FileSplit;
 
 public class Map extends Mapper<LongWritable, Text, Text, IntWritable> {
 	private static final IntWritable one = new IntWritable(1);
-	
+
+	private static final Pattern SENTENCE_BOUNDARY = Pattern.compile("(.*)\\.?");
 	private static final Pattern WORD_BOUNDARY = Pattern.compile("\\s*\\b\\s*");
 
-	private int getWordLanguage(String word)
-	{
-		int verdict = 0;
-		
-		boolean currentWordIsDutch = WordCount.dutchLanguageHandler.getMatrix().containsWord(word);
-		boolean currentWordIsEnglish = WordCount.englishLanguageHandler.getMatrix().containsWord(word);
-		
-		if (currentWordIsDutch && currentWordIsEnglish)
-		{
-			verdict = 0;
-		}
-		else
-		{
-			if (currentWordIsDutch)
-			{
-				verdict = 1;
+	public ArrayList<String> getSentenceFromText(String text) {
+		ArrayList<String> result = new ArrayList<String>();
+		Matcher m = SENTENCE_BOUNDARY.matcher(text);
+
+		while (m.find()) {
+			String matchResult = m.group().toString();
+
+			if (matchResult.isEmpty()) {
+				continue;
 			}
-			
-			if (currentWordIsEnglish)
-			{
-				verdict = -1;
-			}
+
+			result.add(matchResult);
 		}
-		
-		return verdict;
+
+		return result;
 	}
-	
-	private String verdictToString(int verdict)
-	{
-		if (verdict < 0)
-		{
-			return "english";
-		}
-		
-		if (verdict > 0)
-		{
-			return "dutch";
-		}
-		
-		return "undetermined";
-	}
-	
-	public void map(LongWritable offset, Text lineText, Context context) throws IOException, InterruptedException 
-	{
+
+	public void map(LongWritable offset, Text lineText, Context context) throws IOException, InterruptedException {
 		String currentFile = ((FileSplit) context.getInputSplit()).getPath().getName();
-		
-		//Get current line as String 
-		String line = lineText.toString();
-		
-		//Variable for previous word in sentence
-		String previousWord = "";
-		
-		//Variable for current sentence score
-		int languageScore = 0;
-		
-		//Loop over individual words in string
-		for (String currentWord : WORD_BOUNDARY.split(line)) 
-		{
-			//Skip first word in sentence
-			if (!previousWord.equals(""))
-			{
-				//Empty check
-				if (!currentWord.isEmpty()) 
-				{
-					//Add to dutch word matrix
-					if (currentFile.equals("dutch.txt"))
-					{
-						WordCount.dutchLanguageHandler.getMatrix().addWords(previousWord, currentWord);
-					}
-					
-					//Add to english word matrix
-					if (currentFile.equals("english.txt"))
-					{
-						WordCount.englishLanguageHandler.getMatrix().addWords(previousWord, currentWord);
-					}
-					
-					if (currentFile.equals("test.txt"))
-					{
-						String verdict = "";
-						
-						int currentWordVerdict = getWordLanguage(currentWord);
-						int previousWordVerdict = getWordLanguage(previousWord);
-						int total = currentWordVerdict + previousWordVerdict;
-						
-						verdict = verdictToString(total);
-						languageScore += total;
-					}
-				}
-			}
-			
-			previousWord = currentWord;
+		String text = lineText.toString();
+
+		// Add to dutch word matrix
+		if (currentFile.equals("dutch.txt")) {
+			WordCount.dutchMatrix.addToMatrix(text);
 		}
-		
-		context.write(new Text(verdictToString(languageScore)), one);
+
+		// Add to english word matrix
+		if (currentFile.equals("english.txt")) {
+			WordCount.englishMatrix.addToMatrix(text);
+		}
+
+		if (currentFile.equals("test.txt")) {
+			WordCount.testMatrix.addToMatrix(text);
+			
+			double dutchScore = WordCount.dutchMatrix.testSentence(text, WordCount.testMatrix);
+			double englishScore = WordCount.englishMatrix.testSentence(text, WordCount.testMatrix);
+
+			if (dutchScore > englishScore) {
+				context.write(new Text("Dutch"), one);
+			} else if (dutchScore < englishScore) {
+				context.write(new Text("English"), one);
+			}
+		}
 	}
 }
