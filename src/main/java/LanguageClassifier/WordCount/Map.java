@@ -15,7 +15,6 @@ public class Map extends Mapper<LongWritable, Text, Text, IntWritable> {
 	private static final IntWritable one = new IntWritable(1);
 
 	private static final Pattern SENTENCE_BOUNDARY = Pattern.compile("(.*)\\.?");
-	private static final Pattern WORD_BOUNDARY = Pattern.compile("\\s*\\b\\s*");
 
 	public ArrayList<String> getSentenceFromText(String text) {
 		ArrayList<String> result = new ArrayList<String>();
@@ -40,24 +39,27 @@ public class Map extends Mapper<LongWritable, Text, Text, IntWritable> {
 
 		// Add to dutch word matrix
 		if (currentFile.equals("dutch.txt")) {
-			WordCount.dutchMatrix.addToMatrix(text);
+			WordCount.dutchMatrix.addToMatrix(getSentenceFromText(text));
 		}
 
 		// Add to english word matrix
 		if (currentFile.equals("english.txt")) {
-			WordCount.englishMatrix.addToMatrix(text);
+			WordCount.englishMatrix.addToMatrix(getSentenceFromText(text));
 		}
 
 		if (currentFile.equals("test.txt")) {
-			WordCount.testMatrix.addToMatrix(text);
-			
-			double dutchScore = WordCount.dutchMatrix.testSentence(text, WordCount.testMatrix);
-			double englishScore = WordCount.englishMatrix.testSentence(text, WordCount.testMatrix);
+			ArrayList<String> sentences = getSentenceFromText(text);
+			WordCount.testMatrix.addToMatrix(sentences);
 
-			if (dutchScore > englishScore) {
-				context.write(new Text("Dutch"), one);
-			} else if (dutchScore < englishScore) {
-				context.write(new Text("English"), one);
+			for (String sentence : sentences) {
+				double dutchScore = WordCount.dutchMatrix.testSentence(sentence, WordCount.testMatrix);
+				double englishScore = WordCount.englishMatrix.testSentence(sentence, WordCount.testMatrix);
+
+				if (dutchScore > englishScore) {
+					context.write(new Text("Dutch"), one);
+				} else if (dutchScore < englishScore) {
+					context.write(new Text("English"), one);
+				}
 			}
 		}
 	}

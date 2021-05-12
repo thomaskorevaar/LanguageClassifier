@@ -50,29 +50,33 @@ public class Matrix {
 		return mx;
 	}
 
-	public void addToMatrix(String sentence) {
-		// Split sentence into word
-		for (String word : sentence.split(" ")) {
-			// Holding variable for leading character
-			char lead = 0;
+	// Create a new matrix for storing characters
+	public static Matrix createCharacterMatrix() {
+		return new Matrix();
+	}
 
-			for (char tail : word.toCharArray()) {
-				// Attempt to add characters to matrix
-				addCharacters(lead, tail);
-				// Set lead character to current character
-				lead = tail;
+	// Create a new matrix for storing characters
+	public void addToMatrix(ArrayList<String> sentences) {
+		// Loop over individual sentences
+		for (String sentence : sentences) {
+			// Split sentence into word
+			for (String word : sentence.split(" ")) {
+				// Holding variable for leading character
+				char lead = 0;
+
+				for (char tail : word.toCharArray()) {
+					// Attempt to add characters to matrix
+					addCharacters(lead, tail);
+					// Set lead character to current character
+					lead = tail;
+				}
 			}
 		}
 
 		// Normalize the values of the cells
 		normalizeValues();
 	}
-
-	// Create a new matrix for storing characters
-	public static Matrix createCharacterMatrix() {
-		return new Matrix();
-	}
-
+	
 	// Normalize the value of a cell by its occurrences divided by the total
 	// occurrences
 	private void normalizeValues() {
