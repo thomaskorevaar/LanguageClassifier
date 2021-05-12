@@ -15,7 +15,7 @@ public class Reduce extends Reducer<Text, IntWritable, Text, IntWritable> {
 		for (IntWritable count : counts) {
 			sum += count.get();
 		}
-		
+
 		context.write(word, new IntWritable(sum));
 	}
 }

@@ -76,7 +76,7 @@ public class Matrix {
 		// Normalize the values of the cells
 		normalizeValues();
 	}
-	
+
 	// Normalize the value of a cell by its occurrences divided by the total
 	// occurrences
 	private void normalizeValues() {
