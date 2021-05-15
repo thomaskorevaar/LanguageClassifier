@@ -6,8 +6,11 @@ public class Matrix {
 	// All alphabetical characters and a whitespace
 	public static final String characters = "abcdefghijklmnopqrstuvwxyz ";
 
+	// Storing the rows and columns allows for re-use
 	private ArrayList<Row> rows = new ArrayList<Row>();
 	private ArrayList<Column> columns = new ArrayList<Column>();
+
+	// Individual cells
 	private ArrayList<Cell> cells = new ArrayList<Cell>();
 
 	// Get all cells
@@ -15,33 +18,13 @@ public class Matrix {
 		return this.cells;
 	}
 
-	// Print all cells of the matrix
-	public static void print(Matrix mx) {
-		for (Cell cell : mx.getCells()) {
-			System.out.println(cell.toString() + "\t" + cell.getValue());
-		}
-	}
-
-	// Create a new matrix for storing characters
+	// Create a new matrix for storing characters and initialize immediately
 	public static Matrix createCharacterMatrix(ArrayList<String> sentences) {
-		// Create new matrix instance
+		// Create new matrix
 		Matrix mx = new Matrix();
 
-		// Loop over individual sentences
-		for (String sentence : sentences) {
-			// Split sentence into word
-			for (String word : sentence.split(" ")) {
-				// Holding variable for leading character
-				char lead = 0;
-
-				for (char tail : word.toCharArray()) {
-					// Attempt to add characters to matrix
-					mx.addCharacters(lead, tail);
-					// Set lead character to current character
-					lead = tail;
-				}
-			}
-		}
+		// Add all sentences to the new matrix
+		mx.addToMatrix(sentences);
 
 		// Normalize the values of the cells
 		mx.normalizeValues();
@@ -50,12 +33,12 @@ public class Matrix {
 		return mx;
 	}
 
-	// Create a new matrix for storing characters
+	// Create a empty matrix for storing characters
 	public static Matrix createCharacterMatrix() {
 		return new Matrix();
 	}
 
-	// Create a new matrix for storing characters
+	// Add sentences to the matrix
 	public void addToMatrix(ArrayList<String> sentences) {
 		// Loop over individual sentences
 		for (String sentence : sentences) {
@@ -90,10 +73,12 @@ public class Matrix {
 				}
 			}
 
-			// Loop again to set the value
+			// Now that we have the total amount of occurrences of the leading character in
+			// the cell, loop again to set the value of the tailing character as a
+			// percentage chance of appearing after the leading character
 			for (Cell innerCell : cells) {
 				if (outerCell.getRow().x.equals(innerCell.getRow().x)) {
-					// Cast to double or else it doesnt work
+					// Cast to double or else it doesn't work
 					double value = ((double) outerCell.getOccurrence() / (double) totalOccurrences);
 					outerCell.setValue(value);
 				}
@@ -230,6 +215,7 @@ public class Matrix {
 
 	// Find the likelyness of the character combination
 	// Likelyness is equal to the normalized value of the cell
+	// Percentual chance of tail appearing after lead
 	public double findCharacterCombinationLikelyness(char lead, char tail) {
 		Cell cell = getCell(lead, tail);
 
@@ -246,7 +232,8 @@ public class Matrix {
 		tailingcharacter = Character.toLowerCase(tailingcharacter);
 
 		// Change the character to an asterisk if it is not an alphabetic character or a
-		// whitespace
+		// whitespace, this keeps combinations to a minimum
+		// (alphabet + whitespace + asterisk = 28 unique characters)
 		if (isSpecialCharacter(leadingCharacter)) {
 			leadingCharacter = '*';
 		}
@@ -267,8 +254,8 @@ public class Matrix {
 		}
 	}
 
-	// Get the current words, character combinations and compare the current
-	// matrix's result against another matrix
+	// Compare the current word against another matrix, result indicates wether or
+	// not it is equal to the current matrixes language
 	private double testWord(String word, Matrix otherMatrix) {
 		double result = 0;
 		char lead = 0;
@@ -280,13 +267,27 @@ public class Matrix {
 				continue;
 			}
 
+			// Using maximum entropy, calculate the score
+			// Example:
+			// if the current matrix returns: 0.2, 0.5
+			// and the other matrix returns 0.5, 0.2
+			// result =
+			// (0.2 / 0.5) = 0.4
+			// (0.5 / 0.2) = 2.5 -> (1 / 2.5) = 0.4
+			// (0.4 + 0.4) = 0.8 word score
+
 			// Score from the current matrix
 			double score = findCharacterCombinationLikelyness(lead, tail);
 			// Score from the other matrix
 			double otherScore = otherMatrix.findCharacterCombinationLikelyness(lead, tail);
 
-			// Calculate result by using Maximum Entropy
-			result += (score * otherScore);
+			// Calculate how similar it is in percentages
+			double calculation = score * otherScore;
+
+			// Normalize value by dividing it if over 1
+			double totalScore = calculation >= 1 ? (1 / calculation) : calculation;
+			// Add to result
+			result += (totalScore);
 
 			// Set the lead to the current character
 			lead = tail;
