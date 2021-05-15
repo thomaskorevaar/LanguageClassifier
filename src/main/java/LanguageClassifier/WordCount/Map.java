@@ -19,8 +19,8 @@ public class Map extends Mapper<LongWritable, Text, Text, IntWritable> {
 
 	// Constants for output
 	private static final String DUTCH = "Dutch";
-	private static final String ENGLISH = "ENGLISH";
-	private static final String SENTENCE_RESULT = "Current sentence: %s\nLanguage: %s\n";
+	private static final String ENGLISH = "English";
+	private static final String SENTENCE_RESULT = "Current sentence: %s\nLanguage: %s";
 
 	// Helper function to get sentences from slab of text
 	public ArrayList<String> getSentenceFromText(String text) {

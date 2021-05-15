@@ -258,7 +258,6 @@ public class Matrix {
 	// not it is equal to the current matrixes language
 	private double testWord(String word, Matrix otherMatrix) {
 		double result = 0;
-		int combinations = 0;
 		char lead = 0;
 
 		for (char tail : word.toCharArray()) {
@@ -275,8 +274,7 @@ public class Matrix {
 			// result =
 			// (0.2 / 0.5) = 0.4
 			// (0.5 / 0.2) = 2.5 -> (1 / 2.5) = 0.4
-			// (0.4 + 0.4) / 2 = 0.4
-			// There is a 40% chance the language of the other matrix is the same
+			// (0.4 + 0.4) = 0.8 word score
 
 			// Score from the current matrix
 			double score = findCharacterCombinationLikelyness(lead, tail);
@@ -290,14 +288,12 @@ public class Matrix {
 			double totalScore = calculation >= 1 ? (1 / calculation) : calculation;
 			// Add to result
 			result += (totalScore);
-			combinations++;
 
 			// Set the lead to the current character
 			lead = tail;
 		}
 
-		// Cast to double or it returns 0.0
-		return (double) (result / (double) combinations);
+		return result;
 	}
 
 	// Test the sentence
