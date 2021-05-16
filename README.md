@@ -12,6 +12,9 @@ Na het uitvoeren zou dit de output moeten zijn:
 
 En zijn deze bestanden in de `output` folder geplaats
 - ![Alt text](screenshots/output_folder_content.png?raw=true "Folder content")
+- De output van het programma staat in het `part-r-00000` bestand
+
+De output van de nieuwste build is ook te vinden in de `latest_build_output` folder van deze repo in het bestand `output.txt`
 # Zelf een JAR bouwen
 Als je zelf een `.JAR` wil genereren, maak dan gebruik van het commando `maven install` vanuit _Eclipse_ of _IntelliJ_
 
