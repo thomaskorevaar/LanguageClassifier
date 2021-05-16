@@ -1,4 +1,4 @@
-package LanguageClassifier.WordCount;
+package LanguageClassifier.reduce;
 
 import java.io.IOException;
 

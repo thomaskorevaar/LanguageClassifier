@@ -5,7 +5,9 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
 
+import LanguageClassifier.map.Map;
 import LanguageClassifier.matrix.Matrix;
+import LanguageClassifier.reduce.Reduce;
 
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.fs.Path;
@@ -27,6 +29,7 @@ public class WordCount extends Configured implements Tool {
 		System.exit(res);
 	}
 
+	@Override
 	public int run(String[] args) throws Exception {
 		Job job = new Job(getConf(), "wordcount");
 
@@ -34,7 +37,7 @@ public class WordCount extends Configured implements Tool {
 
 		FileInputFormat.addInputPath(job, new Path(args[0]));
 		FileOutputFormat.setOutputPath(job, new Path(args[1]));
-
+		
 		job.setMapperClass(Map.class);
 		job.setReducerClass(Reduce.class);
 		job.setOutputKeyClass(Text.class);
