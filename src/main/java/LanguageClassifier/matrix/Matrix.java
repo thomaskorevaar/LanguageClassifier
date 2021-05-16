@@ -6,6 +6,9 @@ public class Matrix {
 	// All alphabetical characters and a whitespace
 	public static final String characters = "abcdefghijklmnopqrstuvwxyz ";
 
+	// Holds all processed sentences for re-use
+	public ArrayList<String> sentences = new ArrayList<String>();
+
 	// Storing the rows and columns allows for re-use
 	private ArrayList<Row> rows = new ArrayList<Row>();
 	private ArrayList<Column> columns = new ArrayList<Column>();
@@ -42,6 +45,14 @@ public class Matrix {
 	public void addToMatrix(ArrayList<String> sentences) {
 		// Loop over individual sentences
 		for (String sentence : sentences) {
+			// Guard to skip empty sentences
+			if (sentence.isEmpty()) {
+				continue;
+			}
+
+			// Add sentence to list
+			this.sentences.add(sentence);
+
 			// Split sentence into word
 			for (String word : sentence.split(" ")) {
 				// Holding variable for leading character

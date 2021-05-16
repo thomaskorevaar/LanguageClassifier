@@ -22,9 +22,6 @@ public class Map extends Mapper<LongWritable, Text, Text, IntWritable> {
 	private static final String UNKNOWN = "Unknown";
 	private static final String SENTENCE_RESULT = "Current sentence: %s\nLanguage: %s";
 
-	// Variable to hold sentences
-	protected ArrayList<String> testSentences;
-
 	// Matching pattern for sentences
 	private static final Pattern SENTENCE_BOUNDARY = Pattern.compile("(.*)\\.?");
 
@@ -96,10 +93,9 @@ public class Map extends Mapper<LongWritable, Text, Text, IntWritable> {
 		}
 		// If the current file is neither of the training files
 		else {
-			testSentences = getSentenceFromText(text);
 			// Build a matrix for the testfile
 			// The test matrix is what we compare against using our trained matrixes
-			WordCount.testMatrix.addToMatrix(testSentences);
+			WordCount.testMatrix.addToMatrix(sentences);
 		}
 	}
 
@@ -107,6 +103,6 @@ public class Map extends Mapper<LongWritable, Text, Text, IntWritable> {
 	@Override
 	protected void cleanup(Context context) throws IOException, InterruptedException {
 		// Handle the classification
-		handleClassification(context, testSentences);
+		handleClassification(context, WordCount.testMatrix.sentences);
 	}
 }
